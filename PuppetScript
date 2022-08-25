@@ -1,0 +1,71 @@
+
+
+const puppeteer = require('puppeteer');
+//pass aruguements into Username and Password
+
+var args = process.argv.slice(2);
+
+//console.log(args);
+
+var URL = args[0];
+var usernameF = args[1];
+var username = args[2];
+var passwordF = args[3];
+var password = args[4];
+var buttonF = args[5];
+
+
+(async() => {
+
+const browser = await puppeteer.launch({headless:false, ignoreHTTPSErrors: true, defaultViewport: null, args: ['--app=' + URL, '--start-maximized']});
+const pages = await browser.pages();
+const page = pages[0];
+await page.goto(URL);
+    
+    await page.waitForSelector('#' + usernameF);
+    
+    await page.evaluate((usernameF, username) => {
+        var uObj = document.getElementById(usernameF);
+		if(uObj == null)
+		{
+			uObj = document.getElementsByName(usernameF)[0];
+		}
+		uObj.value = username.toLowerCase();
+    }, usernameF, username);
+    //await page.focus('#' + usernameF);
+		
+    await page.evaluate((passwordF, password) => {
+		var pObj = document.getElementById(passwordF);
+		if(pObj == null)
+		{
+			pObj = document.getElementsByName(passwordF)[0];
+		}
+		pObj.value = password;
+    }, passwordF, password);
+    //await page.focus('#' + passwordF);
+	
+	if(buttonF == null)
+	{
+		//console.log('no button id provided, pressing enter');
+		await page.keyboard.press('Tab'); 
+		await page.keyboard.press('Tab'); 
+		await page.keyboard.press('Tab'); 
+		await page.keyboard.press('Tab'); 
+		await page.keyboard.press('Tab'); 
+		await page.keyboard.press('Tab'); 
+		await page.keyboard.press('Enter');
+	}
+	else
+	{
+		await page.focus('#' + buttonF);
+		await page.evaluate((buttonF) => {
+			var lObj = document.getElementById(buttonF);
+			if(lObj == null)
+			{
+				lObj = document.getElementsByName(buttonF)[0];
+			}
+			lObj.click();
+		}, buttonF);
+	}	
+
+})();
